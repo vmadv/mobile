@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+<title>Kampaoh — Reserva</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+html { font-size: 16px; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: #fff; color: #111;
+  min-height: 100vh;
+  padding-bottom: 80px;
+}
+
+/* ── HEADER ── */
+.hdr {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 16px; height: 52px;
+  background: #fff; border-bottom: 1px solid #ebebeb;
+  position: sticky; top: 0; z-index: 200;
+}
+.hdr-back {
+  width: 36px; height: 36px; border-radius: 50%;
+  background: #f5f5f5; border: none; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px; color: #333;
+}
+.hdr-logo { font-weight: 800; font-size: 15px; letter-spacing: 1px; display: flex; align-items: center; gap: 6px; }
+.logo-wrap { display: flex; flex-direction: column; gap: 2px; }
+.logo-t { width: 16px; height: 8px; border-left: 2.5px solid #f5c518; border-right: 2.5px solid #f5c518; border-top: 2.5px solid #f5c518; border-radius: 2px 2px 0 0; }
+.logo-t.sm { width: 11px; height: 6px; opacity: 0.5; margin: 0 auto; }
+.hdr-secure { font-size: 11px; color: #aaa; display: flex; align-items: center; gap: 3px; }
+
+/* ── STEP INDICATOR (3 pasos) ── */
+.step-wrap {
+  padding: 16px 20px 12px;
+  background: #fff;
+  border-bottom: 1px solid #f0f0f0;
+}
+.step-indicator { display: flex; align-items: center; }
+.step-dot {
+  width: 26px; height: 26px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 800; flex-shrink: 0;
+  transition: background 0.2s, color 0.2s;
+}
+.step-dot.active { background: #f5c518; color: #111; }
+.step-dot.done { background: #111; color: #fff; }
+.step-dot.pending { background: #f0f0f0; color: #bbb; }
+.step-line { flex: 1; height: 2px; background: #e0e0e0; margin: 0 6px; transition: background 0.2s; }
+.step-line.done { background: #111; }
+.step-labels { display: flex; justify-content: space-between; margin-top: 7px; }
+.step-lbl { font-size: 10px; color: #bbb; font-weight: 600; text-align: center; flex: 1; }
+.step-lbl:first-child { text-align: left; }
+.step-lbl:last-child { text-align: right; }
+.step-lbl.active { color: #111; }
+.step-lbl.done { color: #888; }
+
+/* ── MAIN CONTENT ── */
+.main { padding: 20px 16px 0; }
+.sec-title { font-size: 20px; font-weight: 800; margin-bottom: 6px; color: #111; }
+.sec-sub { font-size: 13px; color: #888; margin-bottom: 22px; }
+
+/* ── STEP 1: RESUMEN HERO ── */
+.booking-hero {
+  border-radius: 16px; overflow: hidden;
+  border: 1px solid #e8e8e8; margin-bottom: 20px;
+}
+.booking-hero-img {
+  width: 100%; height: 160px;
+  background: linear-gradient(135deg, #81c784 0%, #388e3c 60%, #1b5e20 100%);
+  display: flex; align-items: flex-end; padding: 16px;
+  position: relative;
+}
+.booking-hero-img::before {
+  content: ''; position: absolute; inset: 0;
+  background: linear-gradient(to bottom, transparent 40%, rgba(0,0,0,0.45) 100%);
+}
+.hero-badge {
+  position: relative; z-index: 1;
+  background: #f5c518; color: #111;
+  font-size: 11px; font-weight: 800; padding: 4px 10px; border-radius: 20px;
+  display: inline-flex; align-items: center; gap: 4px;
+}
+.hero-emoji { font-size: 18px; position: absolute; top: 50%; left: 50%; transform: translate(-50%,-60%); z-index: 1; }
+.booking-hero-body { padding: 16px; }
+.hero-name { font-size: 17px; font-weight: 800; color: #111; margin-bottom: 4px; }
+.hero-location { font-size: 12px; color: #888; margin-bottom: 14px; display: flex; align-items: center; gap: 4px; }
+
+.info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+.info-cell {
+  background: #f7f7f7; border-radius: 10px; padding: 11px 12px;
+}
+.info-cell-label { font-size: 10px; font-weight: 700; color: #aaa; text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 3px; }
+.info-cell-value { font-size: 13px; font-weight: 700; color: #111; }
+.info-cell-value.big { font-size: 16px; }
+
+.price-breakdown {
+  background: #f7f7f7; border-radius: 12px; padding: 14px; margin-bottom: 14px;
+}
+.sum-row { display: flex; justify-content: space-between; font-size: 13px; padding: 5px 0; border-bottom: 1px solid #e8e8e8; }
+.sum-row:last-child { border-bottom: none; padding-bottom: 0; }
+.sum-row span:first-child { color: #888; }
+.sum-row span:last-child { font-weight: 600; }
+.sum-row.disc span:last-child { color: #2e7d32; }
+.sum-row.stk span:last-child { text-decoration: line-through; color: #bbb; font-weight: 400; }
+.sum-row.total { font-size: 15px; font-weight: 800; padding-top: 10px; }
+.sum-row.total span:first-child { color: #111; }
+
+.perks { display: flex; flex-direction: column; gap: 7px; }
+.perk { display: flex; align-items: center; gap: 8px; font-size: 12px; color: #555; }
+.perk-icon { font-size: 14px; flex-shrink: 0; }
+
+/* ── PRICE SUMMARY (step 3) ── */
+.price-summary {
+  background: #f7f7f7; border-radius: 12px; padding: 14px; margin-bottom: 20px;
+}
+.cancel-line {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 12px; color: #2e7d32; font-weight: 600;
+  background: #e8f5e9; border-radius: 7px; padding: 8px 10px; margin-top: 10px;
+}
+.tribe-line {
+  background: #fffbe6; border: 1px solid #f5e77a;
+  border-radius: 7px; padding: 10px; margin-top: 8px;
+}
+.tribe-line-title { font-size: 12px; font-weight: 700; color: #7a5c00; margin-bottom: 6px; }
+.tribe-progress { background: #f5e77a; border-radius: 3px; height: 4px; overflow: hidden; margin-bottom: 5px; }
+.tribe-fill { background: #e8b800; height: 100%; border-radius: 3px; width: 72%; }
+.tribe-sub { font-size: 11px; color: #a07a00; }
+
+/* ── LOGIN BANNER ── */
+.login-banner {
+  background: #fffbe6; border: 1px solid #f5e77a;
+  border-radius: 12px; padding: 14px; margin-bottom: 22px;
+}
+.login-banner-title { font-size: 14px; font-weight: 700; margin-bottom: 3px; }
+.login-banner-sub { font-size: 12px; color: #666; margin-bottom: 12px; }
+.login-google-btn {
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  width: 100%; padding: 12px;
+  border: 1.5px solid #ddd; border-radius: 9px;
+  background: #fff; cursor: pointer; font-family: inherit;
+  font-size: 14px; font-weight: 600; color: #111;
+}
+
+/* ── FORM ── */
+.fsec { font-size: 11px; font-weight: 700; color: #999; text-transform: uppercase; letter-spacing: 0.5px; margin: 22px 0 10px; }
+.ff { display: flex; flex-direction: column; gap: 5px; margin-bottom: 12px; }
+.ff label { font-size: 11px; font-weight: 700; color: #999; text-transform: uppercase; letter-spacing: 0.4px; }
+.ff input, .ff select {
+  padding: 13px 14px; border: 1.5px solid #e8e8e8; border-radius: 10px;
+  font-size: 16px; font-family: inherit; outline: none;
+  background: #fff; color: #111;
+  appearance: none; -webkit-appearance: none; width: 100%;
+  transition: border-color 0.15s;
+}
+.ff input:focus, .ff select:focus { border-color: #111; }
+.ff input:disabled { background: #f7f7f7; color: #aaa; }
+.frow2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.field-note { font-size: 11px; color: #bbb; margin-top: -6px; margin-bottom: 10px; }
+
+/* ── COMPANION PILLS ── */
+.pills { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 4px; }
+.pill {
+  padding: 10px 18px; border: 1.5px solid #e0e0e0; border-radius: 24px;
+  font-size: 14px; font-weight: 500; color: #555;
+  background: #fff; cursor: pointer; font-family: inherit;
+  transition: all 0.12s; user-select: none;
+}
+.pill.on { background: #111; border-color: #111; color: #fff; font-weight: 700; }
+
+/* ── DISCOUNT ── */
+.disc-strip {
+  background: #f7f7f7; border: 1px solid #e8e8e8;
+  border-radius: 10px; overflow: hidden; margin-top: 22px;
+}
+.disc-strip-trigger {
+  display: flex; align-items: center; gap: 8px;
+  padding: 12px 14px; background: none; border: none;
+  width: 100%; font-family: inherit; cursor: pointer; text-align: left;
+}
+.disc-strip-trigger span { font-size: 13px; color: #555; font-weight: 500; flex: 1; }
+.ds-badge { font-size: 11px; color: #aaa; background: #e8e8e8; padding: 2px 8px; border-radius: 20px; white-space: nowrap; }
+.disc-input-wrap { display: none; padding: 0 14px 12px; }
+.disc-input-wrap.open { display: block; }
+.disc-input-row { display: flex; gap: 8px; }
+.disc-input-row input { flex: 1; padding: 10px 12px; border: 1.5px solid #ddd; border-radius: 8px; font-size: 14px; font-family: inherit; outline: none; }
+.disc-input-row button { background: #111; color: #fff; border: none; border-radius: 8px; padding: 10px 16px; font-size: 13px; font-weight: 700; cursor: pointer; font-family: inherit; }
+
+/* ── CONDITIONS ── */
+.cond-block { border: 1px solid #e8e8e8; border-radius: 10px; margin-bottom: 8px; overflow: hidden; }
+.cond-head { display: flex; align-items: center; gap: 10px; padding: 14px; cursor: pointer; user-select: none; background: #fff; }
+.cond-icon { font-size: 18px; flex-shrink: 0; }
+.cond-info { flex: 1; }
+.cond-title { font-size: 14px; font-weight: 700; }
+.cond-sub { font-size: 11px; color: #aaa; margin-top: 1px; }
+.cond-chip { background: #e8f5e9; color: #2e7d32; font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: 20px; white-space: nowrap; flex-shrink: 0; }
+.cond-arr { font-size: 11px; color: #ccc; transition: transform 0.2s; flex-shrink: 0; }
+.cond-block.open .cond-arr { transform: rotate(180deg); }
+.cond-body { max-height: 0; overflow: hidden; padding: 0 14px; transition: max-height 0.3s ease, padding 0.15s; font-size: 13px; color: #555; line-height: 1.7; }
+.cond-block.open .cond-body { max-height: 500px; padding: 0 14px 14px; }
+.cond-body ul { padding-left: 16px; margin: 6px 0; }
+.cond-body li { margin-bottom: 4px; }
+.cond-body strong { color: #111; }
+
+/* ── PAYMENT ── */
+.pay-divider { height: 1px; background: #ebebeb; margin: 22px 0; }
+.pay-title { font-size: 16px; font-weight: 800; margin-bottom: 14px; }
+.pay-tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 16px; }
+.pay-tab {
+  padding: 13px; border: 1.5px solid #e0e0e0; border-radius: 10px;
+  text-align: center; font-size: 13px; font-weight: 600; color: #777;
+  background: #fff; cursor: pointer;
+  display: flex; align-items: center; justify-content: center; gap: 6px;
+  transition: all 0.12s;
+}
+.pay-tab.on { border-color: #111; background: #fafafa; color: #111; }
+.gpay-area { display: none; }
+.scalapay-row {
+  display: flex; align-items: center; gap: 8px;
+  background: #f3f0ff; border: 1px solid #d4d0f8; border-radius: 10px;
+  padding: 12px 14px; margin: 14px 0; font-size: 13px; color: #444;
+}
+.sp-logo { font-weight: 900; color: #5a00e0; font-size: 13px; flex-shrink: 0; }
+
+/* ── TERMS ── */
+.terms { font-size: 13px; color: #777; text-align: center; margin: 18px 0 6px; line-height: 1.7; padding: 0 8px; }
+.terms a { color: #111; font-weight: 700; text-decoration: underline; cursor: pointer; }
+
+/* ── STICKY BOTTOM BAR ── */
+.bottom-bar {
+  position: fixed; bottom: 0; left: 0; right: 0; z-index: 100;
+  background: #fff; border-top: 1px solid #ebebeb;
+  padding: 12px 16px;
+  display: flex; align-items: center; gap: 12px;
+  box-shadow: 0 -4px 20px rgba(0,0,0,0.07);
+}
+.bottom-bar-price { flex: 1; }
+.bottom-bar-total { font-size: 18px; font-weight: 800; }
+.bottom-bar-sub { font-size: 11px; color: #aaa; }
+.bottom-bar-btn {
+  flex-shrink: 0; padding: 14px 28px;
+  border: none; border-radius: 12px;
+  font-size: 15px; font-weight: 800; cursor: pointer; font-family: inherit;
+  transition: opacity 0.15s;
+}
+.bottom-bar-btn:active { opacity: 0.85; }
+.btn-next { background: #111; color: #fff; }
+.btn-confirm { background: linear-gradient(135deg, #f5c518, #e8b800); color: #1a1a1a; box-shadow: 0 3px 12px rgba(245,197,24,0.4); }
+
+/* ── MODAL ── */
+.overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: flex-end; }
+.overlay.open { display: flex; }
+.modal { background: #fff; border-radius: 20px 20px 0 0; width: 100%; max-height: 88vh; overflow-y: auto; padding: 24px 20px 40px; position: relative; }
+.modal-handle { width: 36px; height: 4px; background: #ddd; border-radius: 2px; margin: 0 auto 20px; }
+.modal-x { position: absolute; top: 20px; right: 16px; background: #f0f0f0; border: none; cursor: pointer; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; color: #555; }
+.modal-h { font-size: 18px; font-weight: 800; margin-bottom: 4px; }
+.modal-sub { font-size: 12px; color: #888; margin-bottom: 20px; }
+.msec { margin-bottom: 18px; }
+.msec-title { font-size: 13px; font-weight: 700; margin-bottom: 7px; padding-bottom: 5px; border-bottom: 1px solid #ebebeb; }
+.msec p, .msec li { font-size: 13px; color: #555; line-height: 1.7; margin-bottom: 4px; }
+.msec ul { padding-left: 16px; }
+
+/* ── PAGE STEPS ── */
+.page-step { display: none; }
+.page-step.active { display: block; }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="hdr">
+  <button class="hdr-back" id="backBtn" onclick="handleBack()">←</button>
+  <div class="hdr-logo">
+    <div class="logo-wrap"><div class="logo-t"></div><div class="logo-t sm"></div></div>
+    KAMPAOH
+  </div>
+  <div class="hdr-secure">🔒 Seguro</div>
+</header>
+
+<!-- STEP INDICATOR (3 pasos) -->
+<div class="step-wrap">
+  <div class="step-indicator">
+    <div class="step-dot active" id="dot1">1</div>
+    <div class="step-line" id="line1"></div>
+    <div class="step-dot pending" id="dot2">2</div>
+    <div class="step-line" id="line2"></div>
+    <div class="step-dot pending" id="dot3">3</div>
+  </div>
+  <div class="step-labels">
+    <div class="step-lbl active" id="lbl1">Resumen</div>
+    <div class="step-lbl" id="lbl2" style="text-align:center">Tus datos</div>
+    <div class="step-lbl" id="lbl3">Pago</div>
+  </div>
+</div>
+
+<!-- ── STEP 1: RESUMEN DE TU RESERVA ── -->
+<div class="page-step active" id="step1">
+  <div class="main">
+    <div class="sec-title">Tu reserva</div>
+    <div class="sec-sub">Confirma los detalles antes de continuar</div>
+
+    <!-- Hero card -->
+    <div class="booking-hero">
+      <div class="booking-hero-img">
+        <span class="hero-emoji">⛺</span>
+        <span class="hero-badge">⭐ 4,9 · 128 reseñas</span>
+      </div>
+      <div class="booking-hero-body">
+        <div class="hero-name">Bell Tipi XL · Valldaro</div>
+        <div class="hero-location">📍 L'Escala, Costa Brava</div>
+
+        <!-- Info grid -->
+        <div class="info-grid">
+          <div class="info-cell">
+            <div class="info-cell-label">Entrada</div>
+            <div class="info-cell-value">Dom 20 abr</div>
+          </div>
+          <div class="info-cell">
+            <div class="info-cell-label">Salida</div>
+            <div class="info-cell-value">Mar 22 abr</div>
+          </div>
+          <div class="info-cell">
+            <div class="info-cell-label">Duración</div>
+            <div class="info-cell-value">2 noches</div>
+          </div>
+          <div class="info-cell">
+            <div class="info-cell-label">Huéspedes</div>
+            <div class="info-cell-value">2 adultos</div>
+          </div>
+        </div>
+
+        <!-- Price breakdown -->
+        <div class="price-breakdown">
+          <div class="sum-row stk"><span>2 noches × 38,26 €</span><span>76,51 €</span></div>
+          <div class="sum-row disc"><span>Descuento SMART TRIBE (5%)</span><span>−3,83 €</span></div>
+          <div class="sum-row"><span>Tasas e impuestos</span><span>incluidos</span></div>
+          <div class="sum-row total"><span>Total (IVA incl.)</span><span>72,68 €</span></div>
+        </div>
+
+        <!-- Perks -->
+        <div class="perks">
+          <div class="perk"><span class="perk-icon">✅</span> Cancelación gratuita hasta el 13 de abril</div>
+          <div class="perk"><span class="perk-icon">🅿️</span> 1 plaza de parking incluida</div>
+          <div class="perk"><span class="perk-icon">🏊</span> Acceso a piscina incluido</div>
+          <div class="perk"><span class="perk-icon">⭐</span> Tarifa SMART TRIBE aplicada</div>
+        </div>
+      </div>
+    </div>
+
+    <div style="height:8px"></div>
+  </div>
+</div>
+
+<!-- ── STEP 2: TUS DATOS ── -->
+<div class="page-step" id="step2">
+  <div class="main">
+    <div class="sec-title">Tus datos</div>
+    <div class="sec-sub">Rellena la información del titular de la reserva</div>
+
+    <!-- Login banner -->
+    <div class="login-banner">
+      <div class="login-banner-title">¿Tienes cuenta Kampaoh?</div>
+      <div class="login-banner-sub">Inicia sesión para rellenar automáticamente y acumular puntos TRIBE.</div>
+      <button class="login-google-btn">
+        <svg width="16" height="16" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.31-8.16 2.31-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
+        Acceder con Google
+      </button>
+    </div>
+
+    <!-- Personal data -->
+    <div class="fsec">Datos personales</div>
+    <div class="frow2">
+      <div class="ff"><label>Nombre</label><input type="text" value="Víctor" autocomplete="given-name" /></div>
+      <div class="ff"><label>Apellidos</label><input type="text" value="Arias" autocomplete="family-name" /></div>
+    </div>
+    <div class="ff"><label>Email</label><input type="email" value="victorarias@kampaoh.com" disabled autocomplete="email" /></div>
+    <div class="ff"><label>Teléfono</label><input type="tel" placeholder="+34 600 000 000" autocomplete="tel" /></div>
+    <div class="frow2">
+      <div class="ff"><label>Sexo</label><select><option>—</option><option>Hombre</option><option>Mujer</option><option>N/A</option></select></div>
+      <div class="ff"><label>C. Postal</label><input type="text" placeholder="28001" inputmode="numeric" /></div>
+    </div>
+    <div class="ff"><label>País</label><select><option selected>España</option><option>Francia</option><option>Portugal</option><option>Alemania</option><option>Otro</option></select></div>
+
+    <!-- ID -->
+    <div class="fsec">Documento <span style="font-weight:400;color:#ccc;text-transform:none;letter-spacing:0">— opcional</span></div>
+    <div class="frow2">
+      <div class="ff"><label>Tipo</label><select><option>DNI</option><option>Pasaporte</option><option>NIE</option></select></div>
+      <div class="ff"><label>Número</label><input type="text" placeholder="00000000A" /></div>
+    </div>
+    <p class="field-note">El camping puede pedirte el DNI en el check-in.</p>
+
+    <!-- Companions -->
+    <div class="fsec">¿Con quién vienes?</div>
+    <div class="pills">
+      <button class="pill" onclick="selectPill(this)">👫 Pareja</button>
+      <button class="pill" onclick="selectPill(this)">👨‍👩‍👧 Familia</button>
+      <button class="pill" onclick="selectPill(this)">👯 Amigos</button>
+      <button class="pill" onclick="selectPill(this)">🧍 Solo/a</button>
+    </div>
+
+    <!-- How did you hear -->
+    <div class="fsec">¿Cómo nos conociste? <span style="font-weight:400;color:#ccc;text-transform:none;letter-spacing:0">— opcional</span></div>
+    <div class="ff">
+      <select>
+        <option value="">Selecciona…</option>
+        <option>Redes sociales (Instagram, TikTok…)</option>
+        <option>Buscador (Google, Bing…)</option>
+        <option>Boca a boca / recomendación</option>
+        <option>Prensa / medios de comunicación</option>
+        <option>Booking / OTA</option>
+        <option>Email de Kampaoh</option>
+        <option>Ya era cliente</option>
+        <option>Otro</option>
+      </select>
+    </div>
+
+    <!-- Discount code -->
+    <div class="disc-strip">
+      <button class="disc-strip-trigger" onclick="toggleDisc()">
+        <span>🏷️ ¿Tienes un código de descuento?</span>
+        <span class="ds-badge" id="dsBadge">Añadir</span>
+      </button>
+      <div class="disc-input-wrap" id="discWrap">
+        <div class="disc-input-row">
+          <input type="text" placeholder="Introduce tu código" id="discInput" />
+          <button onclick="applyDisc()">Aplicar</button>
+        </div>
+      </div>
+    </div>
+    <div style="height:24px"></div>
+  </div>
+</div>
+
+<!-- ── STEP 3: RESERVA Y PAGO ── -->
+<div class="page-step" id="step3">
+  <div class="main">
+    <div class="sec-title">Reserva y pago</div>
+    <div class="sec-sub">Revisa el resumen y elige cómo pagar</div>
+
+    <!-- Price summary compact -->
+    <div class="price-summary">
+      <div class="sum-row stk"><span>2 noches × 38,26 €</span><span>76,51 €</span></div>
+      <div class="sum-row disc"><span>Descuento SMART TRIBE (5%)</span><span>−3,83 €</span></div>
+      <div class="sum-row"><span>Tasas e impuestos</span><span>incluidos</span></div>
+      <div class="sum-row total"><span>Total (IVA incl.)</span><span>72,68 €</span></div>
+      <div class="cancel-line">✓ Cancelación gratuita hasta el 13 de abril</div>
+      <div class="tribe-line">
+        <div class="tribe-line-title">⭐ Nivel TRIBE 2 — casi lo tienes</div>
+        <div class="tribe-progress"><div class="tribe-fill"></div></div>
+        <div class="tribe-sub">Solo te quedan <strong>3 reservas</strong> para desbloquear TRIBE 2 y obtener más descuentos</div>
+      </div>
+    </div>
+
+    <!-- Conditions -->
+    <div class="cond-block" id="cb1">
+      <div class="cond-head" onclick="toggleCond('cb1')">
+        <span class="cond-icon">🔄</span>
+        <div class="cond-info"><div class="cond-title">Política de cancelación</div><div class="cond-sub">Tarifa SMART TRIBE</div></div>
+        <span class="cond-chip">✓ Gratuita</span>
+        <span class="cond-arr">▼</span>
+      </div>
+      <div class="cond-body">
+        <ul>
+          <li><strong>Hasta 7 días antes:</strong> reembolso del 100%.</li>
+          <li><strong>Entre 7 y 3 días:</strong> reembolso del 50%.</li>
+          <li><strong>Menos de 3 días / no-show:</strong> sin reembolso.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="cond-block" id="cb2">
+      <div class="cond-head" onclick="toggleCond('cb2')">
+        <span class="cond-icon">⛺</span>
+        <div class="cond-info"><div class="cond-title">Normas del alojamiento</div><div class="cond-sub">Check-in/out · silencio · mascotas</div></div>
+        <span class="cond-arr">▼</span>
+      </div>
+      <div class="cond-body">
+        <ul>
+          <li><strong>Check-in:</strong> 16:00–19:00 h.</li>
+          <li><strong>Check-out:</strong> hasta las 11:00 h.</li>
+          <li><strong>Silencio:</strong> 23:00–08:00 h.</li>
+          <li><strong>🚫 No se admiten mascotas.</strong></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="cond-block" id="cb3">
+      <div class="cond-head" onclick="toggleCond('cb3')">
+        <span class="cond-icon">📋</span>
+        <div class="cond-info"><div class="cond-title">Condiciones de la reserva</div><div class="cond-sub">Edades · parking · actividades</div></div>
+        <span class="cond-arr">▼</span>
+      </div>
+      <div class="cond-body">
+        <ul>
+          <li><strong>Bebés (0–3 años):</strong> gratis.</li>
+          <li><strong>Menores de 18:</strong> requieren tutor legal.</li>
+          <li><strong>Parking:</strong> 1 plaza incluida.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="cond-block" id="cb4">
+      <div class="cond-head" onclick="toggleCond('cb4')">
+        <span class="cond-icon">🔒</span>
+        <div class="cond-info"><div class="cond-title">Privacidad</div><div class="cond-sub">RGPD — tus datos protegidos</div></div>
+        <span class="cond-arr">▼</span>
+      </div>
+      <div class="cond-body">
+        <p>Tus datos se tratan conforme al RGPD para gestionar la reserva.</p>
+      </div>
+    </div>
+
+    <!-- Payment -->
+    <div class="pay-divider"></div>
+    <div class="pay-title">Método de pago</div>
+    <div class="pay-tabs">
+      <div class="pay-tab on" onclick="setTab('card',this)">💳 Tarjeta</div>
+      <div class="pay-tab" onclick="setTab('gpay',this)">⬛ Google Pay</div>
+    </div>
+
+    <div id="cardArea">
+      <div class="ff"><label>Número de tarjeta</label><input type="text" inputmode="numeric" placeholder="1234 5678 9012 3456" /></div>
+      <div class="frow2">
+        <div class="ff"><label>Caducidad</label><input type="text" placeholder="MM / AA" /></div>
+        <div class="ff"><label>CVV</label><input type="text" inputmode="numeric" placeholder="123" /></div>
+      </div>
+      <div class="ff" style="margin-bottom:0"><label>Nombre en la tarjeta</label><input type="text" placeholder="Nombre Apellido" /></div>
+    </div>
+
+    <div id="gpayArea" class="gpay-area">
+      <p style="font-size:13px;color:#888;text-align:center;margin-bottom:12px">Paga rápido con tu cuenta de Google.</p>
+      <button style="display:block;width:100%;padding:14px;background:#000;color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;">⬛ Pagar con Google Pay</button>
+    </div>
+
+    <div class="scalapay-row">
+      <span class="sp-logo">Scalapay</span>
+      <span>3 cuotas de <strong>24,23 €</strong> sin intereses. <a href="#" onclick="return false" style="color:#5a00e0">Más info →</a></span>
+    </div>
+
+    <div class="terms">
+      Al confirmar, acepto los <a onclick="openModal(event)">términos de la reserva</a>.
+    </div>
+    <div style="height:16px"></div>
+  </div>
+</div>
+
+<!-- STICKY BOTTOM BAR -->
+<div class="bottom-bar">
+  <div class="bottom-bar-price">
+    <div class="bottom-bar-total">72,68 €</div>
+    <div class="bottom-bar-sub">IVA incluido</div>
+  </div>
+  <button class="bottom-bar-btn btn-next" id="bottomBtn" onclick="handleBottomBtn()">Continuar →</button>
+</div>
+
+<!-- MODAL: TÉRMINOS -->
+<div class="overlay" id="modalOverlay" onclick="closeOverlay(event)">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <button class="modal-x" onclick="closeModal()">✕</button>
+    <div class="modal-h">Términos de la reserva</div>
+    <div class="modal-sub">Condiciones que aceptas al confirmar.</div>
+    <div class="msec"><div class="msec-title">🔄 Cancelación (SMART TRIBE)</div><ul><li><strong>Hasta 7 días antes:</strong> 100% reembolso.</li><li><strong>7–3 días:</strong> 50% reembolso.</li><li><strong>Menos de 3 días / no-show:</strong> sin reembolso.</li></ul></div>
+    <div class="msec"><div class="msec-title">⛺ Normas del alojamiento</div><ul><li>Check-in 16:00–19:00 · Check-out hasta 11:00.</li><li>Silencio 23:00–08:00. No mascotas. No fiestas.</li></ul></div>
+    <div class="msec"><div class="msec-title">📋 Condiciones de reserva</div><ul><li>Bebés 0–3 años: gratis.</li><li>Menores 18 años: requieren tutor.</li><li>1 plaza de parking incluida.</li></ul></div>
+    <div class="msec"><div class="msec-title">🔒 Privacidad</div><p>Datos tratados conforme al RGPD. <a href="#" onclick="return false">Ver política →</a></p></div>
+  </div>
+</div>
+
+<script>
+const TOTAL_STEPS = 3;
+let curStep = 1;
+
+const STEP_LABELS = ['Resumen', 'Tus datos', 'Pago'];
+const BTN_LABELS = ['Continuar →', 'Continuar →', '🔒 Confirmar · 72,68 €'];
+const BTN_CLASSES = ['btn-next', 'btn-next', 'btn-confirm'];
+
+function handleBack() {
+  if (curStep > 1) goToStep(curStep - 1);
+  else history.back();
+}
+
+function handleBottomBtn() {
+  if (curStep < TOTAL_STEPS) goToStep(curStep + 1);
+  else alert('¡Reserva confirmada! 🏕️');
+}
+
+function goToStep(n) {
+  const prev = curStep;
+
+  // Hide previous step
+  document.getElementById('step' + prev).classList.remove('active');
+
+  // Update previous dot
+  if (n > prev) {
+    document.getElementById('dot' + prev).className = 'step-dot done';
+    document.getElementById('dot' + prev).textContent = '✓';
+    document.getElementById('lbl' + prev).className = 'step-lbl done';
+    const line = document.getElementById('line' + prev);
+    if (line) line.classList.add('done');
+  } else {
+    document.getElementById('dot' + prev).className = 'step-dot pending';
+    document.getElementById('dot' + prev).textContent = prev;
+    document.getElementById('lbl' + prev).className = 'step-lbl' + (prev === 2 ? '' : '');
+    const line = document.getElementById('line' + n);
+    if (line) line.classList.remove('done');
+    // Also clear further dots when going back
+    for (let i = n + 1; i <= TOTAL_STEPS; i++) {
+      const d = document.getElementById('dot' + i);
+      if (d && d.className !== 'step-dot pending') {
+        d.className = 'step-dot pending';
+        d.textContent = i;
+        document.getElementById('lbl' + i).className = 'step-lbl' + (i === 2 ? '' : '');
+      }
+    }
+  }
+
+  curStep = n;
+
+  // Show new step
+  document.getElementById('step' + n).classList.add('active');
+  document.getElementById('dot' + n).className = 'step-dot active';
+  document.getElementById('dot' + n).textContent = n;
+  document.getElementById('lbl' + n).className = 'step-lbl active';
+
+  // Update button
+  const btn = document.getElementById('bottomBtn');
+  btn.textContent = BTN_LABELS[n - 1];
+  btn.className = 'bottom-bar-btn ' + BTN_CLASSES[n - 1];
+  btn.onclick = handleBottomBtn;
+
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function toggleDisc() {
+  const w = document.getElementById('discWrap');
+  const b = document.getElementById('dsBadge');
+  const o = w.classList.contains('open');
+  w.classList.toggle('open');
+  b.textContent = o ? 'Añadir' : 'Cancelar';
+  if (!o) document.getElementById('discInput').focus();
+}
+function applyDisc() {
+  const v = document.getElementById('discInput').value.trim();
+  if (v) alert('Código "' + v + '" aplicado ✓');
+}
+
+function selectPill(el) {
+  el.closest('.pills').querySelectorAll('.pill').forEach(p => p.classList.remove('on'));
+  el.classList.add('on');
+}
+
+function toggleCond(id) { document.getElementById(id).classList.toggle('open'); }
+
+function setTab(t, el) {
+  document.querySelectorAll('.pay-tab').forEach(x => x.classList.remove('on'));
+  el.classList.add('on');
+  document.getElementById('cardArea').style.display = t === 'card' ? 'block' : 'none';
+  document.getElementById('gpayArea').style.display = t === 'gpay' ? 'block' : 'none';
+}
+
+function openModal(e) {
+  if (e) e.preventDefault();
+  document.getElementById('modalOverlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeModal() {
+  document.getElementById('modalOverlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+function closeOverlay(e) {
+  if (e.target === document.getElementById('modalOverlay')) closeModal();
+}
+</script>
+</body>
+</html>
